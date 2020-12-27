@@ -42,7 +42,7 @@ local template = Instance.new("Part")
 template.Anchored = true
 template.CanCollide = false
 template.Material = "SmoothPlastic"
-template.Size = Vector3.new(0.1, 0.1, 0.1)
+template.Size = Vector3.new(0.05, 0.05, 0.05)
 template.Rotation = Vector3.new(90, 0, 0)
 
 local timeLastWaited = tick()
@@ -58,10 +58,10 @@ for y = 1, height do
         
         pixel.Color = Color3.fromRGB(color[1], color[2], color[3])
         pixel.Position = Vector3.new((origin[1]+x)/20, (origin[2])/20, (origin[3]+y)/20)
-        pixel.Parent = script
 
         i = i + 1
         if i %% 500 == 0 then
+            pixel.Parent = script
             union = pixel:UnionAsync(chunk)
             union.Parent = script
 
