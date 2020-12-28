@@ -22,8 +22,10 @@ height = image.height
 
 #Convertion
 
-chunkWidth = 22
-chunkHeight = 22
+pixelSize = 0.025
+
+chunkWidth = 32
+chunkHeight = 32
 #Dimentions of chunk unions ( Large chunk sizes results in distortion or error )
 
 chunks = []
@@ -51,23 +53,22 @@ output.write("local chunks = " + str(chunks).replace("[", "{").replace("]", "}")
 
 output.write("""
 
-local width = %s
-local height = %s
 
-local chunkWidth = %s
-local chunkHeight = %s
-
+local pixelSize = %s
 local origin = {0, 0, 0}
 
 local template = Instance.new("Part")
 template.Material = "SmoothPlastic"
-template.Size = Vector3.new(0.05, 0.05, 0.05)
+template.Size = Vector3.new(pixelSize, pixelSize, pixelSize)
 template.CanCollide = false
 template.Anchored = true
 
 local model = Instance.new("Model")
 model.Parent = workspace
 model.Name = script.Name
+
+local chunkWidth = %s
+local chunkHeight = %s
 
 local chunkRow = 1
 local chunkCol = 1
@@ -96,7 +97,7 @@ for i = 1, #chunks do
                 
                 local pixel = template:Clone()
                 pixel.Color = Color3.fromRGB(chunk[row][col][1], chunk[row][col][2], chunk[row][col][3])
-                pixel.Position = Vector3.new((origin[1]-(row + (chunkRow*chunkHeight)))/20, (origin[2])/20, (origin[3]+(col + (chunkCol*chunkWidth)))/20)
+                pixel.Position = Vector3.new((origin[1]-(row + (chunkRow*chunkHeight)))*pixelSize, (origin[2])*pixelSize, (origin[3]+(col + (chunkCol*chunkWidth)))*pixelSize)
 
                 if chunkI ~= #chunk*#chunk[row] then
                     chunkPixels[chunkI] = pixel
@@ -117,7 +118,8 @@ for i = 1, #chunks do
 end
 
 print("Complete!")
-"""%(width, height, chunkWidth, chunkHeight))
+"""%(pixelSize, chunkWidth, chunkHeight))
 
 print "Done!"
 output.close()
+               
