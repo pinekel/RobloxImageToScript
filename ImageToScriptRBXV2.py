@@ -8,8 +8,8 @@ import math
 
 
 #Image loading
-imageName = raw_input("Enter the name of the image to convert ( including file extension )\n>")
-outputName = raw_input("Enter the name of the output script\n>")
+imageName = str(raw_input("Enter the name of the image to convert ( including file extension )\n>"))
+outputName = str(raw_input("Enter the name of the output script\n>"))
 
 image = Image.open(imageName)
 image.convert("RGB")
