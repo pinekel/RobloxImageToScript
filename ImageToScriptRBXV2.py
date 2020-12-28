@@ -100,7 +100,7 @@ for i = 1, #chunks do
 
                 if chunkI ~= #chunk*#chunk[row] then
                     chunkPixels[chunkI] = pixel
-                elseif #chunkPixels ~= 1 then
+                elseif #chunkPixels ~= 0 then
                     pixel.Parent = script
                     local union = pixel:UnionAsync(chunkPixels)
                     union.Parent = model
