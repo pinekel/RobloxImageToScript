@@ -4,67 +4,120 @@ import math
 #Image to script
 #By pinekel
 
-#V1
+#V2
 
 
-#Image selection
-imageDirection = raw_input("Name of image to convert.\n>")
-outputDirection = raw_input("Name of output script.\n>")
+#Image loading
+imageName = raw_input("Enter the name of the image to convert ( including file extension )\n>")
+outputName = raw_input("Enter the name of the output script\n>")
 
-image = Image.open(imageDirection)
-image = image.convert('RGB')
+image = Image.open(imageName)
+image.convert("RGB")
+
 data = image.load()
+output = open(outputName + ".lua", "w")
 
-script = open(outputDirection + ".lua", "w")
-script.write("data = {")
+width = image.width
+height = image.height
 
-size = image.size
+#Convertion
 
-for y in range(size[1]):
-    script.write("{")
-    for x in range(size[0]):
-        pixelData = data[x, y]
-        script.write("{%s, %s, %s}"%(str(pixelData[0]), str(pixelData[1]), str(pixelData[2])))
-        if x != size[0]-1:
-            script.write(", ")
-    if y != size[1]-1:
-            script.write("}, ")
-    print "Finished row %s"%str(y+1)
-print "Finished data translation"
-script.write("}}")
-script.write("""
-local height = %s
+chunkWidth = 22
+chunkHeight = 22
+#Dimentions of chunk unions ( Large chunk sizes results in distortion or error )
+
+chunks = []
+
+chunkI = 0
+for chunkRow in range(int(math.ceil(height/chunkHeight))+1):
+    for chunkCol in range(int(math.ceil(width/chunkWidth))+1):
+        chunks.append([])
+        for row in range(chunkHeight):
+            if row+(chunkRow*chunkHeight) > height-1:
+                continue
+            chunks[chunkI].append([])
+            for col in range(chunkWidth):
+                if col+(chunkCol*chunkWidth) > width-1:
+                    continue
+                chunks[chunkI][row].append(data[col+(chunkCol*chunkWidth), row+(chunkRow*chunkHeight)])
+        chunkI+=1
+        print "Finished chunk " + str(len(chunks))
+
+    chunkI+=1
+    chunks.append(0)
+
+
+output.write("local chunks = " + str(chunks).replace("[", "{").replace("]", "}").replace("(", "{").replace(")", "}"))
+
+output.write("""
+
 local width = %s
+local height = %s
+
+local chunkWidth = %s
+local chunkHeight = %s
 
 local origin = {0, 0, 0}
 
 local template = Instance.new("Part")
-template.Anchored = true
-template.CanCollide = false
 template.Material = "SmoothPlastic"
 template.Size = Vector3.new(0.05, 0.05, 0.05)
-template.Rotation = Vector3.new(90, 0, 0)
+template.CanCollide = false
+template.Anchored = true
 
-local timeLastWaited = tick()
+local model = Instance.new("Model")
+model.Parent = workspace
+model.Name = script.Name
 
-print("Converting data...")
-for y = 1, height do
-    for x = 1, width do
-        local pixel = template:Clone()
-        local color = data[y][x]
+local chunkRow = 1
+local chunkCol = 1
+
+local lastPercent = 0
+
+print("Beginning conversion...")
+for i = 1, #chunks do
+    local chunk = chunks[i]
+    
+    if math.round((i / #chunks) * 100) ~= lastPercent then
+        lastPercent = math.round((i / #chunks) * 100)
+        print(lastPercent .. "%% Complete...")
+    end
+    
+    if chunk == 0 then
+        chunkCol = 1
+        chunkRow = chunkRow + 1
+    else
+        local chunkPixels = {}
+        local chunkI = 0
         
-        pixel.Color = Color3.fromRGB(color[1], color[2], color[3])
-        pixel.Position = Vector3.new((origin[1]+x)/20, (origin[2])/20, (origin[3]+y)/20)
-        pixel.Parent = script
+        for row = 1, #chunk do
+            for col = 1, #chunk[row] do
+                chunkI = chunkI + 1
+                
+                local pixel = template:Clone()
+                pixel.Color = Color3.fromRGB(chunk[row][col][1], chunk[row][col][2], chunk[row][col][3])
+                pixel.Position = Vector3.new((origin[1]-(row + (chunkRow*chunkHeight)))/20, (origin[2])/20, (origin[3]+(col + (chunkCol*chunkWidth)))/20)
 
-        if tick()-timeLastWaited > 1 then
-            timeLastWaited = tick()
-            wait(0)
+                if chunkI ~= #chunk*#chunk[row] then
+                    chunkPixels[chunkI] = pixel
+                elseif #chunkPixels ~= 1 then
+                    pixel.Parent = script
+                    local union = pixel:UnionAsync(chunkPixels)
+                    union.Parent = model
+
+                    pixel:Destroy()
+                    for _, chunkPixel in pairs(chunkPixels) do
+                        chunkPixel:Destroy()
+                    end
+                end
+            end
         end
+        chunkCol = chunkCol + 1
     end
 end
 
-print("Done")
-"""%(size[1], size[0]))
+print("Complete!")
+"""%(width, height, chunkWidth, chunkHeight))
 
-script.close()
+print "Done!"
+output.close()
