@@ -20,6 +20,8 @@ script.write("data = {")
 
 size = image.size
 
+#Conversion
+
 for y in range(size[1]):
     script.write("{")
     for x in range(size[0]):
