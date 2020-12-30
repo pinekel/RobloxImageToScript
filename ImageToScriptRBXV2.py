@@ -22,7 +22,7 @@ height = image.height
 
 #Convertion
 
-pixelSize = 1
+pixelSize = 0.056
 
 chunkWidth = 32
 chunkHeight = 32
