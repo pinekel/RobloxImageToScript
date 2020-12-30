@@ -24,7 +24,7 @@ height = image.height
 
 pixelSize = 0.25
 
-origin = {0, 5, 0}
+origin = [0, 5, 0]
 
 chunkWidth = 32
 chunkHeight = 32
