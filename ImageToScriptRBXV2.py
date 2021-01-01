@@ -11,8 +11,8 @@ import math
 imageName = str(raw_input("Enter the name of the image to convert ( including file extension )\n>"))
 outputName = str(raw_input("Enter the name of the output script\n>"))
 
-image = Image.open(imageName).convert("RGB")
-background = Image.new('RGB', image.size, (255,255,255))
+image = Image.open(imageName).convert("RGBA")
+background = Image.new('RGBA', image.size, (255,255,255))
 composite = Image.alpha_composite(background, image)
 
 image = composite
@@ -103,6 +103,7 @@ for i = 1, #chunks do
                 local pixel = template:Clone()
                 pixel.Color = Color3.fromRGB(chunk[row][col][1], chunk[row][col][2], chunk[row][col][3])
                 pixel.Position = Vector3.new((origin[1]-(row + (chunkRow*chunkHeight)))*pixelSize, (origin[2])*pixelSize, (origin[3]+(col + (chunkCol*chunkWidth)))*pixelSize)
+                pixel.Transparency = 1 - (chunk[row][col][4] / 255)
 
                 if chunkI ~= #chunk*#chunk[row] then
                     chunkPixels[chunkI] = pixel
