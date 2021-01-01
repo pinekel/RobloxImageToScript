@@ -11,8 +11,11 @@ import math
 imageName = str(raw_input("Enter the name of the image to convert ( including file extension )\n>"))
 outputName = str(raw_input("Enter the name of the output script\n>"))
 
-image = Image.open(imageName)
-image.convert("RGB")
+image = Image.open(imageName).convert("RGB")
+background = Image.new('RGB', image.size, (255,255,255))
+composite = Image.alpha_composite(background, image)
+
+image = composite
 
 data = image.load()
 output = open(outputName + ".lua", "w")
