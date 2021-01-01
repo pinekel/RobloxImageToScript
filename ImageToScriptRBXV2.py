@@ -12,10 +12,6 @@ imageName = str(raw_input("Enter the name of the image to convert ( including fi
 outputName = str(raw_input("Enter the name of the output script\n>"))
 
 image = Image.open(imageName).convert("RGBA")
-background = Image.new('RGBA', image.size, (255,255,255))
-composite = Image.alpha_composite(background, image)
-
-image = composite
 
 data = image.load()
 output = open(outputName + ".lua", "w")
